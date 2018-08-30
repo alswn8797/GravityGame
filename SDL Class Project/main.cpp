@@ -2,7 +2,10 @@
 #include <string>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include "Animation.h"
+#include "KeyboardHandler.h"
+#include "MouseHandler.h"
 
 using namespace std;
 
@@ -25,12 +28,21 @@ int main(int argc, char **argv){
 		return -1;
 	}
 
+	//Initialise TTF
+	if (TTF_Init() != 0){
+		//if failed
+		cout << "SDL TTF FAILED!" << endl;
+		system("pause");
+		SDL_Quit();
+		return -1;
+	}
+
 	//Lets create a window to draw into
 	//params: title of window
 	//		  x and y of where to put this window (we are just centering it)
 	//	      width and height of window in pixels
 	//		  flags to help decide what type of window to use
-	SDL_Window* window = SDL_CreateWindow("My SDL2 Project", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	SDL_Window* window = SDL_CreateWindow("Gravity Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		800, 600, SDL_WINDOW_SHOWN); //for full screen use SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN
 
 	//did it work?
@@ -41,6 +53,11 @@ int main(int argc, char **argv){
 		cout << "Window failed!" << endl;
 		return -1;
 	}
+
+	
+	//Add event hendler
+	KeyboardHandler keyboardHandler;
+	MouseHandler mouseHandler;
 
 	//Lets build renderer next, its used to help draw stuff to the screen
 		//params: window to create renderer for, render driver index(-1, get first best match), flags for what renderer can handle
@@ -54,36 +71,62 @@ int main(int argc, char **argv){
 		cout << "renderer failed!" << endl;
 		return -1;
 	}
-	//build stuff
-	//load up a surface
-	SDL_Surface* knightSurface = SDL_LoadBMP("assets/knight.bmp");
-	//convert it to a texture
-	SDL_Texture* knightTexture = SDL_CreateTextureFromSurface(renderer, knightSurface);
-	//dont need surface anymore, clean up its memory
-	SDL_FreeSurface(knightSurface);
+
+	//Load up our font
+	//								font file path                font size
+	TTF_Font* font = TTF_OpenFont("assets/vermin_vibes_1989.ttf", 100);
+	//create a colour for our text
+	SDL_Color textcolour = { 255, 255, 255, 0 };//RGBA
+	//Create surface using font, colour and desired output text
+	SDL_Surface* textSurface = TTF_RenderText_Blended(font, "GRAVITY GAME", textcolour);
+	//convert surface to texture
+	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+	//dont need the surface no more
+	SDL_FreeSurface(textSurface);
+
+	//setup rectangle to describe where to draw this text
+	SDL_Rect textDestination;
+	textDestination.x = 50;
+	textDestination.y = 50;
+	//to get the width and height, query the surface
+	SDL_QueryTexture(textTexture, NULL, NULL, &textDestination.w, &textDestination.h);
+
+	//load up button text
+	//								font file path                font size
+	TTF_Font* buttonfont = TTF_OpenFont("assets/Roboto-Black.ttf", 25);
+	//create a colour for our text
+	//Create surface using font, colour and desired output text
+	SDL_Surface* buttonSurface = TTF_RenderText_Blended(buttonfont, "START GAME", textcolour);
+	//convert surface to texture
+	SDL_Texture* buttonTexture = SDL_CreateTextureFromSurface(renderer, buttonSurface);
+	//dont need the surface no more
+	SDL_FreeSurface(buttonSurface);
+
+	//setup rectangle to describe where to draw this text
+	SDL_Rect buttonDestination;
+	buttonDestination.x = 400;
+	buttonDestination.y = 350;
+	//to get the width and height, query the surface
+	SDL_QueryTexture(buttonTexture, NULL, NULL, &buttonDestination.w, &buttonDestination.h);
+
+	//load up background
+	SDL_Texture* bgTexture = IMG_LoadTexture(renderer, "assets/main-bg.png");
 
 	//which region of the texture to copy from
-	SDL_Rect knightSourceRect;
+	SDL_Rect bgSourceRect;
 	//region on the screen to copy source to (can be different sizes, will stretch)
-	SDL_Rect knightDestinationRect;
+	SDL_Rect bgDestinationRect;
 
-	//query can be used to gain information about a texture, we're using it to get width and height info
-	SDL_QueryTexture(knightTexture, NULL, NULL, &knightSourceRect.w, &knightSourceRect.h);
-	cout << "The knight is " << knightSourceRect.w << " by " << knightSourceRect.h << "pixels" << endl;
-
-	knightSourceRect.x = 0;
-	knightSourceRect.y = 0;
+	bgSourceRect.x = 0;
+	bgSourceRect.y = 0;
+	bgSourceRect.w = 800;
+	bgSourceRect.h = 188;
 	//destination
 	//make it the same size as the image but draw it 50 pixels down and across
-	knightDestinationRect.x = 50;
-	knightDestinationRect.y = 50;
-	knightDestinationRect.w = knightSourceRect.w;
-	knightDestinationRect.h = knightSourceRect.h;
-	//Lets screw up a few things
-	knightSourceRect.x = 0;
-	knightSourceRect.y = 0;
-	knightSourceRect.w = 200;
-	knightSourceRect.h = 241;
+	bgDestinationRect.x = 0;
+	bgDestinationRect.y = 412;
+	bgDestinationRect.w = bgSourceRect.w;
+	bgDestinationRect.h = bgSourceRect.h;
 
 	//Load up Run Image
 	SDL_Texture* trumpTexture = IMG_LoadTexture(renderer, "assets/trump_run.png");
@@ -126,6 +169,10 @@ int main(int argc, char **argv){
 	int trumpFrame = 0;
 	float frameTimer = 0.083;//83 milliseconds per frame
 
+	int framesCounted = 0;
+	float oneSecondTimer = 1;
+
+	float millisecondsInASecond = 1000;
 
 	bool loop = true;
 	while (loop)
@@ -135,80 +182,83 @@ int main(int argc, char **argv){
 		//get difference between currentTime running minus the last update time
 		Uint32 timeDiff = SDL_GetTicks() - lastUpdate;
 		//convert to deltaTime (decimal)
-		float dt = timeDiff / 1000.0;//e.g 200ms is now represented as 0.2 for dt
+		float dt = timeDiff / millisecondsInASecond;//e.g 200ms is now represented as 0.2 for dt
 		//update lastUpdate to currentTime
 		lastUpdate = SDL_GetTicks();
 		//lets see dt per frame
 		//cout << "dt = " << dt << endl;
 
-		//End Loop Condition
-		if (lastUpdate > 10000)
-			loop = false; //run for 10 seconds
+		//timeDiff = 200; //milliseconds
 
+		framesCounted++;
+		oneSecondTimer -= dt;//minusing how many milliseconds since last game loop cycle
+
+		//1 second has passed
+		if (oneSecondTimer <= 0)
+		{
+			cout << "FPS = " << framesCounted << " dt = "<<dt<< endl;
+			framesCounted = 0;
+			oneSecondTimer = 1;
+		}
 
 		//set drawing colour for sdl
 		//params: which renderer to set colour for, Red, Green, Ble, Alpha where each colour value is 0 - 255
-		SDL_SetRenderDrawColor(renderer, 255, 0, 168, 255);
+		SDL_SetRenderDrawColor(renderer, 0, 84, 165, 255);
 		//clear screen with current draw colour
 		SDL_RenderClear(renderer);
 
-		//LETS DRAW A RECTANGLE TO THE SCREEN
-		SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-		//SDL_Rect has a x,y,w,h
-		SDL_Rect rect = { 100, 50, 300, 240 };
+		//DRAW text
+		//render textTexture
+		SDL_RenderCopy(renderer, textTexture, NULL, &textDestination);
 
-		//draw to screen using current draw colour and use rect for size guidance
-		SDL_RenderFillRect(renderer, &rect);
+		//DRAW button
+		//render textTexture
+		SDL_RenderCopy(renderer, buttonTexture, NULL, &buttonDestination);
 
-		//DRAW OUR KNIGHT
-		SDL_RenderCopy(renderer, knightTexture, &knightSourceRect, &knightDestinationRect);
+		//DRAW OUR BACKGROUND
+		SDL_RenderCopy(renderer, bgTexture, &bgSourceRect, &bgDestinationRect);
 
-		//update frameTimer
-		frameTimer -= dt;
-		if (frameTimer <= 0){
-			//time to show next frame in animation
-			currentFrame++;
-			if (currentFrame > 3)
-				currentFrame = 0;//loop frame back to beginning when it gets to the end
 
-			//time to show next frame in animation
-			trumpFrame++;
-			if (trumpFrame > 5)
-				trumpFrame = 0;//loop frame back to beginning when it gets to the end
+		//CHECK FOR INPUTS
+		SDL_Event event;
+		//loop through all input events (reuse event object each time, just change values in it)
+		while (SDL_PollEvent(&event)){
+			//check if user has closed window
+			if (event.type == SDL_QUIT){
+				//exit loop
+				loop = false;
+			}
+			//check if keyboard button pressed
+			if (event.type == SDL_KEYDOWN){
+				//check if ESC key pressed
+				if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){
+					//exit loop
+					loop = false;
+				}
+				//space barrr
+				/*if (event.key.keysym.scancode == SDL_SCANCODE_SPACE && event.key.repeat == 0){
+					SoundManager::soundManager.playSound("explode");
+				}
+				*/
+			}
 
-			//reset frameTimer
-			frameTimer = 0.083;
-
-			//change which part of our run texture we are sourcing from
-			runSrcRect.x = currentFrame*runSrcRect.w;
-			noBGrunSrcRect.x = currentFrame*noBGrunSrcRect.w;
-
-			//change which part of our run texture we are sourcing from
-			trumpSrcRect.x = trumpFrame*trumpSrcRect.w;
+			mouseHandler.update(&event);
 		}
-		
-		//DRAW RUN ANIMATION
-		SDL_RenderCopy(renderer, runTexture, &runSrcRect, &runDstRect);
-		SDL_RenderCopyEx(renderer, runTextureNoBG, &noBGrunSrcRect, &noBGrunDstRect, 0, 0, SDL_FLIP_HORIZONTAL);
-		SDL_RenderCopy(renderer, trumpTexture, &trumpSrcRect, &trumpDstRect);
-		
-		//Draw Anim1
-		anim1.update(dt);//updates timers
-		anim1.draw(300, 100);
-		//Draw Anim2
-		anim2.update(dt);
-		anim2.draw(350, 100, true);
-		//Draw Anim3
-		anim2.update(dt);
-		anim2.draw(200, 400, true);
+
+		//render textTexture
+		SDL_RenderCopy(renderer, textTexture, NULL, &textDestination);
 
 		//when done drawing, present all our renderings to the window
 		SDL_RenderPresent(renderer);
 	}
+
+
 	//SDL_Delay(5000);//pause code for how many milliseconds
 
 	//cleanup
-	SDL_DestroyTexture(knightTexture);
+	SDL_DestroyTexture(textTexture);
+	SDL_DestroyTexture(buttonTexture);
+	SDL_DestroyTexture(bgTexture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	//shut down sdl sub systems
