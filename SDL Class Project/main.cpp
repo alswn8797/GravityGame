@@ -3,9 +3,13 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 #include "Animation.h"
 #include "KeyboardHandler.h"
 #include "MouseHandler.h"
+#include "GameObject.h"
+#include <list>
+#include "Crow.h"
 
 using namespace std;
 
@@ -37,6 +41,14 @@ int main(int argc, char **argv){
 		return -1;
 	}
 
+	//Initialse SDL_mixer
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1){
+		cout << "Mixer did't initialise" << endl;
+		SDL_Quit();
+		system("pause");
+		return -1;
+	}
+
 	//Lets create a window to draw into
 	//params: title of window
 	//		  x and y of where to put this window (we are just centering it)
@@ -54,13 +66,12 @@ int main(int argc, char **argv){
 		return -1;
 	}
 
-	
 	//Add event hendler
 	KeyboardHandler keyboardHandler;
 	MouseHandler mouseHandler;
 
 	//Lets build renderer next, its used to help draw stuff to the screen
-		//params: window to create renderer for, render driver index(-1, get first best match), flags for what renderer can handle
+	//params: window to create renderer for, render driver index(-1, get first best match), flags for what renderer can handle
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	//did it work?
 	if (renderer != NULL){
@@ -78,18 +89,18 @@ int main(int argc, char **argv){
 	//create a colour for our text
 	SDL_Color textcolour = { 255, 255, 255, 0 };//RGBA
 	//Create surface using font, colour and desired output text
-	SDL_Surface* textSurface = TTF_RenderText_Blended(font, "GRAVITY GAME", textcolour);
+	SDL_Surface* titleSurface = TTF_RenderText_Blended(font, "GRAVITY GAME", textcolour);
 	//convert surface to texture
-	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+	SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
 	//dont need the surface no more
-	SDL_FreeSurface(textSurface);
+	SDL_FreeSurface(titleSurface);
 
 	//setup rectangle to describe where to draw this text
-	SDL_Rect textDestination;
-	textDestination.x = 50;
-	textDestination.y = 50;
+	SDL_Rect titleDestination;
+	titleDestination.x = 100;
+	titleDestination.y = 80;
 	//to get the width and height, query the surface
-	SDL_QueryTexture(textTexture, NULL, NULL, &textDestination.w, &textDestination.h);
+	SDL_QueryTexture(titleTexture, NULL, NULL, &titleDestination.w, &titleDestination.h);
 
 	//load up button text
 	//								font file path                font size
@@ -104,7 +115,7 @@ int main(int argc, char **argv){
 
 	//setup rectangle to describe where to draw this text
 	SDL_Rect buttonDestination;
-	buttonDestination.x = 400;
+	buttonDestination.x = 300;
 	buttonDestination.y = 350;
 	//to get the width and height, query the surface
 	SDL_QueryTexture(buttonTexture, NULL, NULL, &buttonDestination.w, &buttonDestination.h);
@@ -129,45 +140,42 @@ int main(int argc, char **argv){
 	bgDestinationRect.h = bgSourceRect.h;
 
 	//Load up Run Image
-	SDL_Texture* trumpTexture = IMG_LoadTexture(renderer, "assets/trump_run.png");
-	//setup run Source rect to focus on first frame
-	SDL_Rect trumpSrcRect = { 0, 0, 100, 100 };
-	//destination rect for runner
-	SDL_Rect trumpDstRect = { 0, 0, 100, 100 };
+	SDL_Texture* flyCrowTexture = IMG_LoadTexture(renderer, "assets/crow-fly.png");
+	Animation flyCrowAnim(flyCrowTexture, renderer, 6, 60, 60, 0.04);
 
-	//Load up Run Image
-	SDL_Texture* runTexture = IMG_LoadTexture(renderer, "assets/run.png");
-	//setup run Source rect to focus on first frame
-	SDL_Rect runSrcRect = { 0, 0, 32, 32 };
-	//destination rect for runner
-	SDL_Rect runDstRect = { 100, 100, 128, 128 };
+	//LIST OF ALL GAME OBJECTS
+	list<GameObject*> gameObjects;
 
+	//Store window width and height
+	int screenWidth = SDL_GetWindowSurface(window)->w;
+	int screenHeight = SDL_GetWindowSurface(window)->h;
 
-	//setup run Source rect to focus on first frame
-	SDL_Rect noBGrunSrcRect = { 0, 0, 32, 32 };
-	//destination rect for runner
-	SDL_Rect noBGrunDstRect = { 300, 350, 100, 100 };
+	//BUILD A CROW
+	Crow* flyCrow = new Crow();
+	flyCrow->setRenderer(renderer);
+	flyCrow->setAnimation(&flyCrowAnim);
+	flyCrow->setLoop(true);
+	flyCrow->maxpos.x = SDL_GetWindowSurface(window)->w;
+	flyCrow->pos.x = -60;
+	flyCrow->pos.y = 230;
+	flyCrow->velocity.x = 200;
+	gameObjects.push_back(flyCrow);
 
-	//To make a colour transparent, needs to be a surface first
-	SDL_Surface* runSurface = IMG_Load("assets/run.png");
-	//Set its colour key (colour you want to be invisible)
-	SDL_SetColorKey(runSurface, 1, SDL_MapRGB(runSurface->format, 128, 128, 255));
-	//convert it to a texture now
-	SDL_Texture* runTextureNoBG = SDL_CreateTextureFromSurface(renderer, runSurface);
-	//cleanup surface
-	SDL_FreeSurface(runSurface);
+	//LOAD UP MUSIC FILE
+	Mix_Music* music = Mix_LoadMUS("assets/MenuBGM.wav");
+	if (music == NULL){
+		cout << "Music failed to load" << endl;
+		SDL_Quit();
+		system("pause");
+		return -1;
+	}
 
-	Animation anim1(runTextureNoBG, renderer, 4, 32, 32, 0.04);
-	Animation anim2(runTextureNoBG, renderer, 4, 32, 32, 0.1);
-	Animation anim3(runTextureNoBG, renderer, 4, 50, 50, 0.2);
+	//play song
+	//params: music, how many times to play the song (-1 means infinite times)
+	Mix_PlayMusic(music, -1);
 
 	//setup time stuff
 	Uint32 lastUpdate = SDL_GetTicks();//milliseconds since the start of the game running
-
-	//current frame (0-3)
-	int currentFrame = 0;
-	int trumpFrame = 0;
-	float frameTimer = 0.083;//83 milliseconds per frame
 
 	int framesCounted = 0;
 	float oneSecondTimer = 1;
@@ -188,7 +196,20 @@ int main(int argc, char **argv){
 		//lets see dt per frame
 		//cout << "dt = " << dt << endl;
 
-		//timeDiff = 200; //milliseconds
+		//set drawing colour for sdl
+		//params: which renderer to set colour for, Red, Green, Ble, Alpha where each colour value is 0 - 255
+		SDL_SetRenderDrawColor(renderer, 0, 84, 165, 255);
+		//clear screen with current draw colour
+		SDL_RenderClear(renderer);
+
+		//DRAW title
+		SDL_RenderCopy(renderer, titleTexture, NULL, &titleDestination);
+
+		//DRAW button
+		SDL_RenderCopy(renderer, buttonTexture, NULL, &buttonDestination);
+
+		//DRAW OUR BACKGROUND
+		SDL_RenderCopy(renderer, bgTexture, &bgSourceRect, &bgDestinationRect);
 
 		framesCounted++;
 		oneSecondTimer -= dt;//minusing how many milliseconds since last game loop cycle
@@ -196,28 +217,10 @@ int main(int argc, char **argv){
 		//1 second has passed
 		if (oneSecondTimer <= 0)
 		{
-			cout << "FPS = " << framesCounted << " dt = "<<dt<< endl;
+			cout << "FPS = " << framesCounted << " dt = " << dt << endl;
 			framesCounted = 0;
 			oneSecondTimer = 1;
 		}
-
-		//set drawing colour for sdl
-		//params: which renderer to set colour for, Red, Green, Ble, Alpha where each colour value is 0 - 255
-		SDL_SetRenderDrawColor(renderer, 0, 84, 165, 255);
-		//clear screen with current draw colour
-		SDL_RenderClear(renderer);
-
-		//DRAW text
-		//render textTexture
-		SDL_RenderCopy(renderer, textTexture, NULL, &textDestination);
-
-		//DRAW button
-		//render textTexture
-		SDL_RenderCopy(renderer, buttonTexture, NULL, &buttonDestination);
-
-		//DRAW OUR BACKGROUND
-		SDL_RenderCopy(renderer, bgTexture, &bgSourceRect, &bgDestinationRect);
-
 
 		//CHECK FOR INPUTS
 		SDL_Event event;
@@ -237,26 +240,33 @@ int main(int argc, char **argv){
 				}
 				//space barrr
 				/*if (event.key.keysym.scancode == SDL_SCANCODE_SPACE && event.key.repeat == 0){
-					SoundManager::soundManager.playSound("explode");
+				SoundManager::soundManager.playSound("explode");
 				}
 				*/
 			}
-
 			mouseHandler.update(&event);
 		}
 
-		//render textTexture
-		SDL_RenderCopy(renderer, textTexture, NULL, &textDestination);
+		//update all game objects in list
+		
+		for each (GameObject* go in gameObjects)
+		{
+			go->update(dt);
+			go->draw();
+		}
 
 		//when done drawing, present all our renderings to the window
 		SDL_RenderPresent(renderer);
 	}
-
-
-	//SDL_Delay(5000);//pause code for how many milliseconds
+	
+	//stop music from playing
+	Mix_PauseMusic();
+	//delete song from memory
+	Mix_FreeMusic(music); //make sure this bit of music is not playing
 
 	//cleanup
-	SDL_DestroyTexture(textTexture);
+	SDL_DestroyTexture(flyCrowTexture);
+	SDL_DestroyTexture(titleTexture);
 	SDL_DestroyTexture(buttonTexture);
 	SDL_DestroyTexture(bgTexture);
 	SDL_DestroyRenderer(renderer);

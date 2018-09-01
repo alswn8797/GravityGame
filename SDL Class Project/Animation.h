@@ -21,4 +21,3 @@ public:
 	void draw(int x, int y);
 	void draw(int x, int y, bool flip);
 };
-

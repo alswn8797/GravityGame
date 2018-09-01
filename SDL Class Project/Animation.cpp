@@ -9,6 +9,7 @@ Animation::Animation(SDL_Texture* spriteSheet, SDL_Renderer* renderer, int numbe
 	this->frameHeight = frameHeight;
 	this->frameDuration = frameDuration;
 
+	currentFrame = 0;
 	frameTimer = 0;
 }
 void Animation::update(float dt){
@@ -28,7 +29,6 @@ void Animation::update(float dt){
 		}
 	}
 }
-
 void Animation::draw(int x, int y){
 	SDL_Rect srcRect;
 	srcRect.x = currentFrame*frameWidth;
