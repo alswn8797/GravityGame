@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <SDL.h>
+#include "SoundManager.h"
 #include "RandomNumber.h"
 #include "GameStateMachine.h"
 

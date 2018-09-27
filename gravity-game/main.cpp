@@ -1,9 +1,6 @@
-#include <SDL_mixer.h>
 #include "CleanUp.h"
 #include "ResPath.h"
 #include "DrawingFunctions.h"
-#include <iostream>
-#include <string>
 #include "Globals.h"
 #include "StateMenu.h"
 
@@ -69,22 +66,6 @@ int main(int argc, char **argv){
 	}
 	//this is the size to draw things at, before we scale it to the screen size dimensions mentioned in createWindow
 	SDL_RenderSetLogicalSize(Globals::renderer, Globals::ScreenWidth, Globals::ScreenHeight);
-
-	/*
-	//Run Game
-	while (SDL_GetTicks() < 5000){
-		//set drawing colour for sdl
-		//params: which renderer to set colour for, Red, Green, Ble, Alpha where each colour value is 0 - 255
-		SDL_SetRenderDrawColor(renderer, 0, 84, 165, 255);
-		//clear screen with current draw colour
-		SDL_RenderClear(renderer);
-		//draw what we want to the screen
-		renderTexture(bgTexture, renderer, 0, 0);
-		
-		//Show image
-		SDL_RenderPresent(renderer);
-	}
-	*/
 
 	//start on menu screen
 	Globals::gameStateMachine.pushState(new StateMenu());
