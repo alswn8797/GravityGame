@@ -90,7 +90,9 @@
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="StateGame.cpp" />
     <ClCompile Include="StateMenu.cpp" />
+    <ClCompile Include="TimeController.cpp" />
     <ClCompile Include="Vector.cpp" />
+    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -110,7 +112,9 @@
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="StateGame.h" />
     <ClInclude Include="StateMenu.h" />
+    <ClInclude Include="TimeController.h" />
     <ClInclude Include="Vector.h" />
+    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

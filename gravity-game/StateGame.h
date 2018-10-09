@@ -5,6 +5,7 @@
 #include <list>
 #include "DrawingFunctions.h"
 #include "Crow.h"
+#include "Wall.h"
 #include "KeyboardHandler.h"
 #include "MouseHandler.h"
 #include "GameControllerHandler.h"
@@ -14,8 +15,10 @@ class StateGame :
 	public GameState
 {
 public:
-	SDL_Texture* crowTexture;
-	Animation* crowAnimation;
+	SDL_Texture* crowFlyTexture;
+	Animation* crowFlyAnimation;
+	SDL_Texture* crowStandTexture;
+	Animation* crowStandAnimation;
 	Crow* crow;
 
 	list<GameObject*> gameObjects;
@@ -24,11 +27,11 @@ public:
 	MouseHandler mouseHandler;
 	GameControllerHandler controllerHandler;
 
-	Uint32 lastUpdate; //last sdl_getTicks();
-	float dt = 0;
-
 	StateGame();
 	~StateGame();
+
+	void setCrow();
+	void setWalls();
 
 	//override those abstract methods inherited
 	virtual void update();

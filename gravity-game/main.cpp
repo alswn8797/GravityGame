@@ -71,8 +71,10 @@ int main(int argc, char **argv){
 	Globals::gameStateMachine.pushState(new StateMenu());
 
 	bool loop = true;
+
 	while (loop)
 	{
+
 		Globals::gameStateMachine.update();
 		Globals::gameStateMachine.render();
 

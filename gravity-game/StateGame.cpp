@@ -2,41 +2,32 @@
 
 StateGame::StateGame()
 {
-	string resPath = getResourcePath();
-	crowTexture = loadTexture(resPath + "crow-fly.png", Globals::renderer);
-	crowAnimation = new Animation(crowTexture, Globals::renderer, 6, 60, 60, 0.8);
+	TimeController::timeController.reset();
+	GameObject::gameObjects = &gameObjects;
 
-	crow = new Crow();
-	crow->setAnimation(crowAnimation);
-	crow->setRenderer(Globals::renderer);
-	crow->pos.x = 200;
-	crow->pos.y = 200;
-
-	//add them to the list of game objects
-	gameObjects.push_back(crow);
+	setCrow();
 	
 	keyboardHandler.hero = crow;
 	mouseHandler.hero = crow;
 
-	lastUpdate = SDL_GetTicks();
-	
-}
+	setWalls();
 
+}
 
 StateGame::~StateGame()
 {
 	//cleanup dynamic memory
 	delete crow;
-	delete crowAnimation;
-	cleanup(crowTexture);
+	delete crowStandAnimation;
+	delete crowFlyAnimation;
+	cleanup(crowStandTexture);
+	cleanup(crowFlyTexture);
 }
 
-
 void StateGame::update(){
+
 	//update time management stuff
-	Uint32 timeDiff = SDL_GetTicks() - lastUpdate;
-	dt = timeDiff / 1000.0;
-	lastUpdate = SDL_GetTicks();
+	TimeController::timeController.updateTime();
 
 	//deal with events
 	SDL_Event event;
@@ -70,17 +61,19 @@ void StateGame::update(){
 		else
 			keyboardHandler.update(&event);
 
-
 		mouseHandler.update(&event);
 	}
 
 	for each (GameObject* go in gameObjects)
 	{
-		go->update(dt);
+		go->update(TimeController::timeController.dT);
 	}
 }
+
 void StateGame::render(){
-	SDL_SetRenderDrawColor(Globals::renderer, 255, 90, 0, 255);
+	TimeController::timeController.reset();
+
+	SDL_SetRenderDrawColor(Globals::renderer, 0, 84, 165, 255);
 	SDL_RenderClear(Globals::renderer);
 	for each (GameObject* go in gameObjects)
 	{
@@ -89,12 +82,44 @@ void StateGame::render(){
 
 	SDL_RenderPresent(Globals::renderer);
 }
+
 bool StateGame::onEnter(){
 	cout << "enter play game state" << endl;
 	return true;
 
 }
+
 bool StateGame::onExit(){
 	cout << "exit play game state" << endl;
 	return true;
+}
+
+void StateGame::setCrow(){
+	string resPath = getResourcePath();
+	crowFlyTexture = loadTexture(resPath + "crow-fly.png", Globals::renderer);
+	crowFlyAnimation = new Animation(crowFlyTexture, Globals::renderer, 6, 44, 60, 0.04);
+	crowStandTexture = loadTexture(resPath + "crow-stand.png", Globals::renderer);
+	crowStandAnimation = new Animation(crowStandTexture, Globals::renderer, 11, 70, 70, 0.04);
+
+	crow = new Crow();
+	crow->setAnimation(crowFlyAnimation, crowStandAnimation);
+	crow->setMultipleAnimation(true);
+	crow->setRenderer(Globals::renderer);
+	crow->pos.x = 0;
+	crow->pos.y = Globals::ScreenHeight - 70;
+
+	//add them to the list of game objects
+	gameObjects.push_back(crow);
+}
+
+void StateGame::setWalls(){
+
+	//Make some walls                                   //  w    h    x   y
+	Wall *wall1 = new Wall(Globals::renderer, true, true, 200, 400, 200, 200);
+	Wall *wall2 = new Wall(Globals::renderer, true, true, 200, 200, 400, 400);
+
+	//for (i = 0;)
+	//add them to the list of game objects
+	gameObjects.push_back(wall1);
+	gameObjects.push_back(wall2);
 }

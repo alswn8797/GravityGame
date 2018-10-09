@@ -2,6 +2,8 @@
 
 StateMenu::StateMenu()
 {
+	TimeController::timeController.reset();
+
 	string resPath = getResourcePath();
 
 	SDL_Color textcolor = { 255, 255, 255, 0 };//RGBA
@@ -14,6 +16,17 @@ StateMenu::StateMenu()
 	if (music != NULL)
 		Mix_PlayMusic(music, -1);
 
+	crowTexture = loadTexture(resPath + "crow-fly.png", Globals::renderer);
+	crowAnimation = new Animation(crowTexture, Globals::renderer, 6, 44, 60, 0.04);
+
+	crow = new Crow();
+	crow->setRenderer(Globals::renderer);
+	crow->setAnimation(crowAnimation);
+	crow->setLoop(true);
+	crow->maxpos.x = Globals::ScreenWidth;
+	crow->pos.x = -60;
+	crow->pos.y = 230;
+	crow->velocity.x = 200;
 }
 
 StateMenu::~StateMenu()
@@ -21,6 +34,10 @@ StateMenu::~StateMenu()
 	Mix_PausedMusic();
 	Mix_FreeMusic(music);
 
+	delete crow;
+	delete crowAnimation;
+
+	cleanup(crowTexture);
 	cleanup(BgTexture);
 	cleanup(TitleTexture);
 	cleanup(ButtonTextrue);
@@ -28,8 +45,15 @@ StateMenu::~StateMenu()
 
 void StateMenu::update(){
 
+	//update time management stuff
+	TimeController::timeController.updateTime();
+
 	SDL_Event e;
+
 	while (SDL_PollEvent(&e)){
+		
+		crow->draw();
+
 		//event fired when pressing window close button
 		if (e.type == SDL_QUIT){
 			Globals::quitGame = true;
@@ -48,6 +72,8 @@ void StateMenu::update(){
 			}
 		}
 	}
+
+	crow->update(TimeController::timeController.dT);
 }
 void StateMenu::render(){
 
@@ -58,8 +84,9 @@ void StateMenu::render(){
 	renderTexture(ButtonTextrue, Globals::renderer, 300, 350);
 	renderTexture(BgTexture, Globals::renderer, 0, 412);
 
-	SDL_RenderPresent(Globals::renderer);
+	crow->draw();
 
+	SDL_RenderPresent(Globals::renderer);
 }
 bool StateMenu::onEnter(){
 	cout << "Entering menu state" << endl;
