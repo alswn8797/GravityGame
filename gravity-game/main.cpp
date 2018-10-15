@@ -47,7 +47,7 @@ int main(int argc, char **argv){
 
 	//setup window
 	SDL_Window* window = SDL_CreateWindow("Gravity Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		Globals::ScreenWidth, Globals::ScreenHeight, SDL_WINDOW_SHOWN); //SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN
+		Globals::screenWidth, Globals::screenHeight, SDL_WINDOW_SHOWN); //SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN
 
 	if (window == NULL)
 	{
@@ -65,7 +65,7 @@ int main(int argc, char **argv){
 		return 1;
 	}
 	//this is the size to draw things at, before we scale it to the screen size dimensions mentioned in createWindow
-	SDL_RenderSetLogicalSize(Globals::renderer, Globals::ScreenWidth, Globals::ScreenHeight);
+	SDL_RenderSetLogicalSize(Globals::renderer, Globals::screenWidth, Globals::screenHeight);
 
 	//start on menu screen
 	Globals::gameStateMachine.pushState(new StateMenu());

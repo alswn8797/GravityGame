@@ -1,18 +1,21 @@
-﻿Build started 9/10/2018 6:02:34 PM.
+﻿Build started 16/10/2018 8:04:02 AM.
      1>Project "C:\Users\alswn\Documents\Visual Studio 2013\Projects\GravityGame\gravity-game\gravity-game.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\sdl2\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt StateGame.cpp StateMenu.cpp Wall.cpp main.cpp
-         StateMenu.cpp
-     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\statemenu.cpp(20): warning C4305: 'argument' : truncation from 'double' to 'float'
-     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\statemenu.cpp(26): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-         Generating Code...
-         Skipping... (no relevant changes detected)
-         main.cpp
-         Wall.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\sdl2\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt StateGame.cpp
          StateGame.cpp
+     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\stategame.cpp(108): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\stategame.cpp(110): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\stategame.cpp(130): warning C4305: 'argument' : truncation from 'double' to 'float'
+     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\stategame.cpp(145): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\stategame.cpp(146): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\stategame.cpp(147): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\stategame.cpp(148): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\stategame.cpp(158): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\alswn\documents\visual studio 2013\projects\gravitygame\gravity-game\stategame.cpp(159): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\alswn\Documents\Visual Studio 2013\Projects\GravityGame\Debug\gravity-game.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\sdl2\lib\x86 SDL2.lib SDL2main.lib SDL2_image.lib SDL2_mixer.lib SDL2_ttf.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\alswn\Documents\Visual Studio 2013\Projects\GravityGame\Debug\gravity-game.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\alswn\Documents\Visual Studio 2013\Projects\GravityGame\Debug\gravity-game.lib" /MACHINE:X86 Debug\Animation.obj
          Debug\CleanUp.obj
+         Debug\Coin.obj
          Debug\Crow.obj
          Debug\DrawingFunctions.obj
          Debug\GameControllerHandler.obj
@@ -37,4 +40,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:06.14
+Time Elapsed 00:00:01.94

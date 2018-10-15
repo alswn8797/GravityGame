@@ -15,10 +15,11 @@ public:
 	Globals();
 	~Globals();
 	//sdl related
-	static int ScreenWidth, ScreenHeight;
+	static int screenWidth, screenHeight;
 	static SDL_Renderer* renderer;
 	static bool quitGame;
 	static GameStateMachine gameStateMachine;
+	static int score;
 };
 
 #endif

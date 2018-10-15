@@ -10,5 +10,9 @@ Vector::Vector(float x, float y){
 	this->y = y;
 }
 
-
-
+Vector::Vector(float w, float h, float x, float y){
+	this->w = w;
+	this->h = h;
+	this->x = x;
+	this->y = y;
+}

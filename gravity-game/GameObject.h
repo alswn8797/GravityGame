@@ -20,10 +20,14 @@ public:
 	Vector velocity; //how fast to move in any direction
 	Vector maxpos;
 
+	string objectType;
+
 	//FOR COLLISIONS
 	bool bumpIntoSolids = false; //do I run into stuff?
 	bool solid = false; //do things run into me?
 	SDL_Rect collisionBox;
+
+	bool fallen = false; //crow has to fallen when user not press key up
 
 	void setRenderer(SDL_Renderer* renderer);
 
@@ -43,6 +47,8 @@ public:
 	bool AABBCheck(SDL_Rect b1, SDL_Rect b2);
 
 	static list<GameObject*> *gameObjects;
+
+	bool checkCollision(SDL_Rect cbox1, SDL_Rect cbox2);
 };
 
 #endif

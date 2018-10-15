@@ -2,16 +2,18 @@
 
 StateGame::StateGame()
 {
+	string resPath = getResourcePath();
 	TimeController::timeController.reset();
 	GameObject::gameObjects = &gameObjects;
+	//load up sounds
+	SoundManager::soundManager.loadSound("coin", resPath + "coin.wav");
 
+	setCoins();
 	setCrow();
-	
-	keyboardHandler.hero = crow;
-	mouseHandler.hero = crow;
-
 	setWalls();
 
+	keyboardHandler.hero = crow;
+	mouseHandler.hero = crow;
 }
 
 StateGame::~StateGame()
@@ -66,6 +68,11 @@ void StateGame::update(){
 
 	for each (GameObject* go in gameObjects)
 	{
+		if (go->fallen){
+			//go->velocity.y = 80;
+			cout << go->pos.y << endl;
+			cout << go->velocity.y << endl;
+		}
 		go->update(TimeController::timeController.dT);
 	}
 }
@@ -96,30 +103,68 @@ bool StateGame::onExit(){
 
 void StateGame::setCrow(){
 	string resPath = getResourcePath();
+
 	crowFlyTexture = loadTexture(resPath + "crow-fly.png", Globals::renderer);
 	crowFlyAnimation = new Animation(crowFlyTexture, Globals::renderer, 6, 44, 60, 0.04);
 	crowStandTexture = loadTexture(resPath + "crow-stand.png", Globals::renderer);
-	crowStandAnimation = new Animation(crowStandTexture, Globals::renderer, 11, 70, 70, 0.04);
+	crowStandAnimation = new Animation(crowStandTexture, Globals::renderer, 11, 70, 70, 0.3);
 
 	crow = new Crow();
 	crow->setAnimation(crowFlyAnimation, crowStandAnimation);
 	crow->setMultipleAnimation(true);
 	crow->setRenderer(Globals::renderer);
-	crow->pos.x = 0;
-	crow->pos.y = Globals::ScreenHeight - 70;
+	crow->pos.x = 100;
+	crow->pos.y = 480;
+	crow->objectType = "hero";
+	crow->fallen = true;
 
 	//add them to the list of game objects
 	gameObjects.push_back(crow);
 }
 
-void StateGame::setWalls(){
+void StateGame::setCoins(){
+	string resPath = getResourcePath();
 
-	//Make some walls                                   //  w    h    x   y
-	Wall *wall1 = new Wall(Globals::renderer, true, true, 200, 400, 200, 200);
-	Wall *wall2 = new Wall(Globals::renderer, true, true, 200, 200, 400, 400);
+	list<Vector*> pos{ new Vector(300, 150), new Vector(400, 100), new Vector(500, 150) };
+	coinTexture = loadTexture(resPath + "coin.png", Globals::renderer);
+	coinAnimation = new Animation(coinTexture, Globals::renderer, 7, 40, 40, 0.1);
+
+	for each (Vector* posVec in pos){
+		Coin* coin = new Coin();
+		coin->setRenderer(Globals::renderer);
+		coin->setAnimation(coinAnimation);
+		coin->pos.x = posVec->x;
+		coin->pos.y = posVec->y;
+		gameObjects.push_back(coin);
+	}
+}
+
+void StateGame::setWalls(){
+	int boundWidth = 50;
+
+	list<Vector*> wallVecs{ new Vector(boundWidth, Globals::screenHeight, 0, 0),
+		new Vector(boundWidth, Globals::screenHeight, Globals::screenWidth - boundWidth, 0),
+		new Vector(Globals::screenWidth, boundWidth, 0, 0),
+		new Vector(Globals::screenWidth, boundWidth, 0, Globals::screenHeight - boundWidth),
+		new Vector(300, 150, 200, 450),
+		new Vector(300, 300, 500, 300)
+	};
+	
+	for each (Vector* vec in wallVecs){
+		Wall* wall = new Wall();
+		wall->setRenderer(Globals::renderer);
+		wall->pos.x = vec->x;
+		wall->pos.y = vec->y;
+		wall->collisionBox.w = vec->w;
+		wall->collisionBox.h = vec->h;
+		gameObjects.push_back(wall);
+	}
+
 
 	//for (i = 0;)
 	//add them to the list of game objects
-	gameObjects.push_back(wall1);
-	gameObjects.push_back(wall2);
+}
+
+void StateGame::changeLevel(int level){
+
 }

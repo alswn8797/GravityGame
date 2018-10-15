@@ -74,6 +74,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="CleanUp.cpp" />
+    <ClCompile Include="Coin.cpp" />
     <ClCompile Include="Crow.cpp" />
     <ClCompile Include="DrawingFunctions.cpp" />
     <ClCompile Include="GameControllerHandler.cpp" />
@@ -97,6 +98,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="CleanUp.h" />
+    <ClInclude Include="Coin.h" />
     <ClInclude Include="Crow.h" />
     <ClInclude Include="DrawingFunctions.h" />
     <ClInclude Include="GameControllerHandler.h" />

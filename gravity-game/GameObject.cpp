@@ -165,6 +165,9 @@ https://www.gamedev.net/articles/programming/general-and-gameplay-programming/sw
 	{
 		system("cls");
 		cout << "collision" << endl;
+		if (fallen){
+			fallen = false;
+		}
 		// calculate normal of collided surface
 		if (xEntry > yEntry)
 		{
@@ -213,4 +216,18 @@ bool GameObject::AABBCheck(SDL_Rect b1, SDL_Rect b2)
 	return !(b1.x + b1.w < b2.x || b1.x > b2.x + b2.w || b1.y + b1.h < b2.y || b1.y > b2.y + b2.h);
 }
 
+
 list<GameObject*> *GameObject::gameObjects = NULL;
+
+bool GameObject::checkCollision(SDL_Rect cbox1, SDL_Rect cbox2){
+	SDL_Rect intersection;
+	if (SDL_IntersectRect(&cbox1, &cbox2, &intersection))
+	{
+		return true;
+	}
+
+	//if a rectangle is in another rectangle
+	//do it here
+
+	return false;
+}

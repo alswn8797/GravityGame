@@ -19,6 +19,10 @@ void Crow::setLoop(bool loop){
 	this->loop = loop;
 }
 
+void Crow::setAnimationState(int state){
+	this->animationState = state;
+}
+
 void Crow::setAnimation(Animation* animation){
 	this->animation = animation;
 }
@@ -40,6 +44,24 @@ void Crow::update(float dt){
 			pos.x = 0 - (float)animation->frameWidth;
 		}
 	}
+
+	//if fallen is true for crow
+	if (fallen){
+		//if position y is smaller than screen height - crow height
+		if (pos.y < 510){
+			//cout << pos.y << endl;
+			//then move crow down
+			animationState = 1;
+			velocity.y = 80;
+		}
+		//otherwise
+		else{
+			//stop
+			animationState = 2;
+			velocity.y = 0;
+		}
+	}
+
 	//before we move our beloved hero, we'll see if they crash into anything on their predicted path
 	updateCollisions(dt);
 	//move character based on velocity
@@ -54,7 +76,7 @@ void Crow::draw(){
 	if (multipleAnimation){
 		if (animationState == 1)
 			setAnimation(flyingAnimation);
-		else
+		else if (animationState == 2)
 			setAnimation(standingAnimation);
 	}
 

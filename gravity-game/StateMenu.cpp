@@ -23,7 +23,7 @@ StateMenu::StateMenu()
 	crow->setRenderer(Globals::renderer);
 	crow->setAnimation(crowAnimation);
 	crow->setLoop(true);
-	crow->maxpos.x = Globals::ScreenWidth;
+	crow->maxpos.x = Globals::screenWidth;
 	crow->pos.x = -60;
 	crow->pos.y = 230;
 	crow->velocity.x = 200;

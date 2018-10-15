@@ -30,16 +30,26 @@ void KeyboardHandler::update(SDL_Event* event){
 	hero->velocity.y = 0;
 
 	//key is considered down if = 1, no held down = 0
-	if (keystates[SDL_SCANCODE_UP])
+	//when up key in held down
+	if (keystates[SDL_SCANCODE_UP]){
+		//stop crow to fallen down and move up while key is down
+		hero->fallen = false;
+		hero->setAnimationState(1);
 		hero->velocity.y = -80;
-	/*else {
-		if (hero->pos.y > 80)
-			hero->velocity.y = 80;
-	}*/
-	if (keystates[SDL_SCANCODE_DOWN])
-		hero->velocity.y = 80;
-	if (keystates[SDL_SCANCODE_LEFT])
-		hero->velocity.x = -80;
-	if (keystates[SDL_SCANCODE_RIGHT])
-		hero->velocity.x = 80;
+		if (keystates[SDL_SCANCODE_LEFT]){
+			hero->velocity.x = -80;
+		}
+		if (keystates[SDL_SCANCODE_RIGHT]){
+			hero->velocity.x = 80;
+		}
+	}
+	else { //otherwise turn the fallen option on
+		hero->fallen = true;
+		if (keystates[SDL_SCANCODE_LEFT]){
+			hero->velocity.x = -80;
+		}
+		if (keystates[SDL_SCANCODE_RIGHT]){
+			hero->velocity.x = 80;
+		}
+	}
 }

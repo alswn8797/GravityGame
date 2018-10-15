@@ -24,6 +24,7 @@ public:
 
 	void setMultipleAnimation(bool multipleAnimation);
 	void setLoop(bool loop);
+	void setAnimationState(int state);
 	void setAnimation(Animation* animation);
 	void setAnimation(Animation* flyingAnimation, Animation* standingAnimation);
 

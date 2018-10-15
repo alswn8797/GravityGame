@@ -2,10 +2,8 @@
 
 Wall::Wall()
 {
-	bumpIntoSolids = false;
+	bumpIntoSolids = true;
 	solid = true;
-	collisionBox.w = 32;
-	collisionBox.h = 32;
 }
 
 Wall::Wall(SDL_Renderer* renderer, bool bumpIntoSolids, bool solid, int w, int h, int x, int y)
